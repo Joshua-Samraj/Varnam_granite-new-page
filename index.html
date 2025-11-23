@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varnam granites | Premium Marble & Tiles</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary: #1a1a1a;
+            /* Dark Grey */
+            --accent: #c5a059;
+            /* Gold */
+            --light: #f4f4f4;
+            /* Off-White */
+            --white: #ffffff;
+            --text-grey: #666666;
+            --font-head: 'Playfair Display', serif;
+            --font-body: 'Poppins', sans-serif;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--primary);
+            line-height: 1.6;
+            background-color: var(--white);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            width: 100%;
+            display: block;
+        }
+
+        /* --- REUSABLE CLASSES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--primary);
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-family: var(--font-head);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .section-title span {
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            margin: 0 auto;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-head);
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .hero .btn {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .hero .btn:hover {
+            background: transparent;
+            color: var(--white);
+        }
+
+        /* --- COLLECTIONS (FILTERABLE GALLERY) --- */
+        .collections {
+            padding: 80px 0;
+            background: var(--light);
+        }
+
+        .filter-btns {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 1px solid #ddd;
+            background: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: var(--white);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            /* border-radius:5%; */
+            border-bottom-left-radius: 10%;
+            border-top-right-radius: 10%;
+            display: block;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .product-card.hide {
+            display: none;
+        }
+
+        .card-img {
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .card-img img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .card-img img {
+            transform: scale(1.1);
+        }
+
+        .card-info {
+            padding: 20px;
+            text-align: center;
+            border-radius: 100%;
+        }
+
+        .card-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+
+        .card-info p {
+            color: var(--text-grey);
+            font-size: 0.9rem;
+        }
+
+        .card-price {
+            display: block;
+            /* Set to block to show price */
+            margin-top: 10px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #111;
+            color: #888;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">Varnam<span>Granites</span>.</a>
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#collection">Collection</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="login.html" style="color: var(--accent);">Admin Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Timeless Elegance <br> for Your Home</h1>
+            <p>Discover the finest collection of Italian Marble, Granite, and Vitrified Tiles.</p>
+            <a href="#collection" class="btn">Explore Collection</a>
+        </div>
+    </section>
+
+    <section id="collection" class="collections">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Collection</h2>
+                <span></span>
+            </div>
+
+            <div class="filter-btns">
+                <button class="filter-btn active" onclick="filterSelection('all')">All</button>
+                <button class="filter-btn" onclick="filterSelection('marble')">Marble</button>
+                <button class="filter-btn" onclick="filterSelection('tiles')">Tiles</button>
+                <button class="filter-btn" onclick="filterSelection('granite')">Granite</button>
+            </div>
+
+            <div class="gallery-grid" id="productGrid">
+                <div style="text-align:center; width:100%; grid-column: 1/-1;">Loading Products from Server...</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Varnam granites. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // --- 1. CONFIGURATION ---
+        // When you push to Vercel, change this URL to your Vercel backend URL!
+        const API_URL = 'http://localhost:3000/api/products';
+
+        // --- 2. FETCH DATA FROM BACKEND ---
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch(API_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server Error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const grid = document.getElementById('productGrid');
+
+                    // Clear the "Loading..." text
+                    grid.innerHTML = "";
+
+                    if (data.length === 0) {
+                        grid.innerHTML = "<p style='text-align:center; width:100%; grid-column: 1/-1;'>No products found in database.</p>";
+                        return;
+                    }
+
+                    data.forEach(product => {
+                        // Use the first image, or a placeholder if missing
+                        const imgSrc = product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300x250?text=No+Image';
+
+                        const card = `
+                            <a href="product.html?id=${product.id}" class="product-card" data-category="${product.category}">
+                                <div class="card-img">
+                                    <img src="${imgSrc}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x250?text=Image+Error'">
+                                </div>
+                                <div class="card-info">
+                                    <h3>${product.name}</h3>
+                                    <p>${product.origin || 'Imported'}</p>
+                                    <span class="card-price">₹${product.price.toFixed(2)} / sq.ft</span>
+                                </div>
+                            </a>
+                        `;
+                        grid.innerHTML += card;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error connecting to backend:', error);
+                    document.getElementById('productGrid').innerHTML = `
+                        <div style='text-align:center; color:red; grid-column: 1/-1;'>
+                            <h3>Connection Failed</h3>
+                            <p>Is your Backend Server running?</p>
+                            <p>Run <code>node server.js</code> in your terminal.</p>
+                        </div>`;
+                });
+        });
+
+        // --- 3. FILTER FUNCTION (Same as before) ---
+        function filterSelection(category) {
+            const items = document.getElementsByClassName('product-card');
+            const buttons = document.getElementsByClassName('filter-btn');
+
+            // Button Highlight Logic
+            for (let btn of buttons) {
+                btn.classList.remove('active');
+                if (btn.innerText.toLowerCase() === category || (category === 'all' && btn.innerText === 'All')) {
+                    btn.classList.add('active');
+                }
+            }
+
+            // Show/Hide Logic
+            for (let i = 0; i < items.length; i++) {
+                let itemCategory = items[i].getAttribute('data-category');
+
+                if (category === 'all' || itemCategory === category) {
+                    items[i].classList.remove('hide');
+                } else {
+                    items[i].classList.add('hide');
+                }
+            }
+        }
+    </script>
+
+</body>
+
+</html>

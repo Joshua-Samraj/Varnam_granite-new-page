@@ -1,0 +1,101 @@
+[
+    {
+        "id": 1,
+        "name": "Italian Carrara White",
+        "category": "marble",
+        "price": 12.5,
+        "description": "Classic white marble with soft grey veins, perfect for luxury flooring.",
+        "stock": "In Stock",
+        "origin": "Carrara, Italy",
+        "finish": "High Gloss Polish",
+        "images": [
+            "https://images.unsplash.com/photo-1618221639263-381d62aa55d7?q=80&w=800",
+            "https://images.unsplash.com/photo-1599695681064-9475c255f283?q=80&w=400",
+            "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=400"
+        ],
+        "reviews": [
+            {
+                "user": "Amanda S.",
+                "rating": 5,
+                "text": "Looks amazing in my hallway."
+            },
+            {
+                "user": "John D.",
+                "rating": 4,
+                "text": "Great quality stone."
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Matte Grey Ceramic",
+        "category": "tiles",
+        "price": 4.2,
+        "description": "Anti-skid matte finish tiles, specifically designed for bathroom safety.",
+        "stock": "Low Stock (15 boxes left)",
+        "origin": "Spain",
+        "finish": "Matte / Anti-skid",
+        "images": [
+            "https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=800",
+            "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400",
+            "https://images.unsplash.com/photo-1502005229766-9397ebb86c9c?q=80&w=400"
+        ],
+        "reviews": [
+            {
+                "user": "Mike T.",
+                "rating": 5,
+                "text": "Non-slippery and looks modern."
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Black Galaxy Granite",
+        "category": "granite",
+        "price": 20,
+        "description": "Deep black granite with golden specks. The best choice for kitchen countertops.",
+        "stock": "In Stock",
+        "origin": "India",
+        "finish": "Mirror Polish",
+        "images": [
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800"
+        ],
+        "reviews": [
+            {
+                "user": "Chef Ramsay",
+                "rating": 5,
+                "text": "Indestructible and beautiful."
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "name": "Spanish Beige Marble",
+        "category": "marble",
+        "price": 10,
+        "description": "Warm beige tones that add coziness to living rooms and wall cladding.",
+        "stock": "Out of Stock",
+        "origin": "Spain",
+        "finish": "Satin Finish",
+        "images": [
+            "https://images.unsplash.com/photo-1604147495798-57beb5d6af73?q=80&w=800",
+            "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=400",
+            "https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?q=80&w=400"
+        ],
+        "reviews": []
+    },
+    {
+        "name": "Joshua Product",
+        "category": "marble",
+        "price": 1000,
+        "stock": "Available",
+        "description": "no comment simply waste",
+        "origin": "Tamil nadu",
+        "finish": "Premium",
+        "images": [
+            "sdfv"
+        ],
+        "id": 1763901437284,
+        "reviews": []
+    }
+]

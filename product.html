@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | Varnam granites</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #c5a059;
+            --green: #007600;
+            --red: #b12704;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Layout */
+        .product-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        /* --- IMAGE GALLERY STYLES --- */
+        .gallery-container {
+            position: sticky;
+            top: 20px;
+        }
+
+        .main-image {
+            position: relative;
+            border: 1px solid #eee;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            min-height: 400px;
+            /* Placeholder height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-image img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Arrow Buttons */
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .arrow-btn:hover {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .prev-btn {
+            left: 10px;
+        }
+
+        .next-btn {
+            right: 10px;
+        }
+
+        /* Thumbnails */
+        .thumbnail-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .thumb {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            object-fit: cover;
+            opacity: 0.6;
+            transition: 0.3s;
+        }
+
+        .thumb:hover {
+            opacity: 1;
+        }
+
+        .thumb.active {
+            border: 2px solid var(--accent);
+            opacity: 1;
+        }
+
+        /* Text */
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 10px;
+        }
+
+        .price-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stock-status {
+            font-weight: 600;
+            color: var(--green);
+            margin: 10px 0;
+        }
+
+        .stock-status.low {
+            color: var(--red);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* Reviews */
+        .reviews-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .review-card {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        @media(max-width:768px) {
+            .product-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <p style="margin-top:20px;"><a href="index.html" style="text-decoration:none; color:#666;">&larr; Back to
+                Collection</a></p>
+
+        <div id="loading" style="text-align:center; padding:50px;">Loading Product from Server...</div>
+
+        <div class="product-wrapper" id="content" style="display:none;">
+
+            <div class="gallery-container">
+                <div class="main-image">
+                    <button class="arrow-btn prev-btn" onclick="changeImage(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+
+                    <img id="mainImg" src="" alt="Main Product Image"
+                        onerror="this.src='https://via.placeholder.com/500?text=Image+Error'">
+
+                    <button class="arrow-btn next-btn" onclick="changeImage(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="thumbnail-row" id="thumbnailContainer"></div>
+            </div>
+
+            <div class="product-info">
+                <h1 id="productTitle"></h1>
+                <p style="color:#666; font-size:0.9rem;">Category: <span id="categoryName"
+                        style="text-transform:capitalize;"></span></p>
+
+                <div style="margin: 15px 0; border-top:1px solid #eee; border-bottom:1px solid #eee; padding:15px 0;">
+                    <span class="price-value" id="productPrice"></span> <span style="font-size:1rem;">/ sq.ft</span>
+                </div>
+
+                <p id="stockStatus" class="stock-status"></p>
+                <p id="productDesc" style="line-height: 1.6;"></p>
+
+                <ul style="margin: 20px 0; padding-left: 20px; line-height:1.8;">
+                    <li><strong>Origin:</strong> <span id="origin"></span></li>
+                    <li><strong>Finish:</strong> <span id="finish"></span></li>
+                </ul>
+
+                <button class="btn btn-primary">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="reviews-section" id="reviewsSection" style="display:none;">
+            <h3>Customer Reviews</h3>
+            <div id="reviewsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const API_URL = 'http://localhost:3000/api/products';
+
+        // Global variables
+        let currentImageIndex = 0;
+        let productImages = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = parseInt(urlParams.get('id'));
+
+            if (!productId) {
+                document.getElementById('loading').innerText = "No product selected.";
+                return;
+            }
+
+            // FETCH FROM API
+            fetch(API_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("Server Offline");
+                    return response.json();
+                })
+                .then(products => {
+                    // Find the specific product by ID (Comparing Number vs Number)
+                    const product = products.find(p => p.id === productId);
+
+                    if (product) {
+                        renderProduct(product);
+                    } else {
+                        document.getElementById('loading').innerHTML = "Product Not Found.<br><a href='index.html'>Go Back</a>";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('loading').innerHTML = "<span style='color:red'>Error connecting to Backend API.</span><br>Make sure `node server.js` is running.";
+                });
+        });
+
+        function renderProduct(product) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'grid';
+            document.getElementById('reviewsSection').style.display = 'block';
+
+            // Handle Images (Fallback if empty)
+            if (product.images && product.images.length > 0) {
+                productImages = product.images;
+            } else {
+                productImages = ['https://via.placeholder.com/500?text=No+Image+Available'];
+            }
+
+            currentImageIndex = 0;
+
+            // Fill Data
+            document.title = product.name + " | Varnam granites";
+            document.getElementById('productTitle').innerText = product.name;
+            document.getElementById('categoryName').innerText = product.category;
+            document.getElementById('productPrice').innerText = "$" + product.price.toFixed(2);
+            document.getElementById('productDesc').innerText = product.description;
+            document.getElementById('origin').innerText = product.origin || "Unknown";
+            document.getElementById('finish').innerText = product.finish || "Standard";
+
+            // Stock Logic
+            const stockEl = document.getElementById('stockStatus');
+            stockEl.innerText = product.stock;
+            stockEl.className = 'stock-status'; // Reset class
+            if (product.stock.toLowerCase().includes('low') || product.stock.toLowerCase().includes('out')) {
+                stockEl.classList.add('low');
+            }
+
+            // Initialize Gallery
+            updateMainImage();
+            renderThumbnails();
+
+            // Reviews
+            const reviewCont = document.getElementById('reviewsContainer');
+            reviewCont.innerHTML = '';
+            if (product.reviews && product.reviews.length > 0) {
+                product.reviews.forEach(rev => {
+                    reviewCont.innerHTML += `
+                        <div class="review-card">
+                            <strong>${rev.user || 'Anonymous'}</strong> <span style="color:#ffa41c">★ ${rev.rating}</span>
+                            <p>${rev.text}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                reviewCont.innerHTML = "<p>No reviews yet.</p>";
+            }
+        }
+
+        function renderThumbnails() {
+            const thumbContainer = document.getElementById('thumbnailContainer');
+            thumbContainer.innerHTML = '';
+
+            productImages.forEach((imgSrc, index) => {
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.className = index === 0 ? 'thumb active' : 'thumb';
+                img.onclick = () => {
+                    currentImageIndex = index;
+                    updateMainImage();
+                };
+                // Error handling for thumbnails
+                img.onerror = function () { this.src = 'https://via.placeholder.com/60?text=Error'; };
+                thumbContainer.appendChild(img);
+            });
+        }
+
+        function changeImage(direction) {
+            currentImageIndex += direction;
+            if (currentImageIndex >= productImages.length) currentImageIndex = 0;
+            else if (currentImageIndex < 0) currentImageIndex = productImages.length - 1;
+            updateMainImage();
+        }
+
+        function updateMainImage() {
+            const mainImg = document.getElementById('mainImg');
+            mainImg.src = productImages[currentImageIndex];
+
+            // Update Thumbnails Active State
+            const thumbs = document.querySelectorAll('.thumb');
+            thumbs.forEach(t => t.classList.remove('active'));
+            if (thumbs[currentImageIndex]) thumbs[currentImageIndex].classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

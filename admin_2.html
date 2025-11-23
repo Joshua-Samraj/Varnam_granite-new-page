@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Varnam granites</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #c5a059;
+            --light: #f4f4f4;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+            color: var(--primary);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+        }
+
+        .btn.cancel {
+            background: #999;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* TABLE STYLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            background: var(--accent);
+        }
+
+        .delete-btn {
+            background: #c0392b;
+        }
+
+        .img-preview {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* CAMERA & PREVIEW STYLES */
+        #camera-container {
+            display: none;
+            margin-bottom: 15px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .cam-btn {
+            background: #333;
+            flex: 1;
+            padding: 10px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cam-btn:hover {
+            background: #555;
+        }
+
+        /* MULTI-IMAGE PREVIEW STYLES */
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .thumb-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .thumb-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .remove-img {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-badge {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background: var(--accent);
+            color: white;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 0 4px 0 0;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .add-url-btn {
+            width: auto;
+            padding: 0 15px;
+            background: var(--primary);
+        }
+
+        @media(max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 2fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>LuxeStone <span>Admin</span></h2>
+            <div style="display:flex; gap:20px; align-items:center;">
+                <a href="index.html" style="color: var(--accent); text-decoration: none;">View Website</a>
+                <button onclick="logout()"
+                    style="background:none; border:1px solid #333; padding:5px 15px; cursor:pointer;">Logout</button>
+            </div>
+        </div>
+
+        <div class="admin-grid">
+            <div class="card">
+                <h3 id="formTitle">Add New Product</h3>
+                <form id="productForm">
+                    <input type="hidden" id="prodId">
+
+                    <div class="form-group">
+                        <label>Product Images</label>
+
+                        <div class="camera-controls">
+                            <button type="button" class="cam-btn"
+                                onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open"></i> Select Files
+                            </button>
+                            <button type="button" class="cam-btn" onclick="startCamera()">
+                                <i class="fas fa-camera"></i> Camera
+                            </button>
+                            <button type="button" class="cam-btn" id="captureBtn" onclick="capturePhoto()"
+                                style="display:none; background:var(--accent);">
+                                <i class="fas fa-circle"></i> Snap
+                            </button>
+                        </div>
+
+                        <input type="file" id="fileInput" style="display: none;" accept="image/*" multiple
+                            onchange="handleFileSelect(this)">
+
+                        <div id="camera-container">
+                            <video id="video" autoplay playsinline></video>
+                            <canvas id="canvas" style="display:none;"></canvas>
+                        </div>
+
+                        <div class="url-input-group">
+                            <input type="text" id="manualUrl" placeholder="Paste URL here...">
+                            <button type="button" class="btn add-url-btn" onclick="addManualUrl()">Add</button>
+                        </div>
+
+                        <div class="image-grid" id="imagePreviewContainer"></div>
+                        <small style="color: #666; font-size: 0.8rem;">Images upload when you click Save.</small>
+                    </div>
+
+                    <div class="form-group"><label>Product Name</label><input type="text" id="name" required></div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="marble">Marble</option>
+                            <option value="tiles">Tiles</option>
+                            <option value="granite">Granite</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Price (₹/sq.ft)</label><input type="number" step="0.01" id="price"
+                            required></div>
+                    <div class="form-group"><label>Stock Status</label><input type="text" id="stock"
+                            placeholder="e.g. In Stock" required></div>
+                    <div class="form-group"><label>Description</label><textarea id="description" rows="3"
+                            required></textarea></div>
+                    <div class="form-group"><label>Origin</label><input type="text" id="origin" required></div>
+                    <div class="form-group"><label>Finish</label><input type="text" id="finish" required></div>
+
+                    <button type="submit" class="btn" id="submitBtn">Add Product</button>
+                    <button type="button" class="btn cancel" id="cancelBtn" onclick="resetForm()">Cancel Edit</button>
+                </form>
+            </div>
+
+            <div class="card" style="overflow-x: auto;">
+                <h3>Inventory</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Img</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const API_URL = 'http://localhost:3000/api/products';
+        const CLOUD_NAME = 'dyhajxcyf';
+        const UPLOAD_PRESET = 'Varnam granites';
+
+        // --- STATE MANAGEMENT ---
+        // Stores objects: { type: 'url', value: 'http...' } OR { type: 'file', value: FileObj, preview: 'blob:...' }
+        let currentImages = [];
+        let products = [];
+        let stream = null;
+
+        // --- 1. IMAGE PREVIEW LOGIC ---
+        function renderImagePreviews() {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = '';
+
+            currentImages.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = 'thumb-wrapper';
+
+                const src = img.type === 'url' ? img.value : img.preview;
+                const badge = img.type === 'file' ? '<span class="new-badge">New</span>' : '';
+
+                div.innerHTML = `
+                    <img src="${src}" onclick="window.open('${src}')">
+                    ${badge}
+                    <button type="button" class="remove-img" onclick="removeImage(${index})">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function removeImage(index) {
+            currentImages.splice(index, 1);
+            renderImagePreviews();
+        }
+
+        function addManualUrl() {
+            const input = document.getElementById('manualUrl');
+            if (input.value) {
+                currentImages.push({ type: 'url', value: input.value });
+                input.value = '';
+                renderImagePreviews();
+            }
+        }
+
+        // --- 2. FILE SELECTION (LOCAL ONLY) ---
+        function handleFileSelect(input) {
+            const files = input.files;
+            if (!files || files.length === 0) return;
+
+            Array.from(files).forEach(file => {
+                // Create a local blob URL for immediate preview
+                const previewUrl = URL.createObjectURL(file);
+                currentImages.push({ type: 'file', value: file, preview: previewUrl });
+            });
+
+            renderImagePreviews();
+            input.value = ''; // Reset input
+        }
+
+        // --- 3. CAMERA CAPTURE (LOCAL ONLY) ---
+        async function startCamera() {
+            const video = document.getElementById('video');
+            const container = document.getElementById('camera-container');
+            const captureBtn = document.getElementById('captureBtn');
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                container.style.display = 'block';
+                captureBtn.style.display = 'flex';
+                captureBtn.innerText = "Snap Photo";
+            } catch (err) {
+                alert("Could not access camera.");
+            }
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            // Convert canvas to Blob (File)
+            canvas.toBlob(blob => {
+                const previewUrl = URL.createObjectURL(blob);
+                currentImages.push({ type: 'file', value: blob, preview: previewUrl });
+                renderImagePreviews();
+
+                // Stop camera after snap
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                document.getElementById('camera-container').style.display = 'none';
+                document.getElementById('captureBtn').style.display = 'none';
+            }, 'image/jpeg', 0.8);
+        }
+
+        // --- 4. CLOUDINARY UPLOAD HELPER ---
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', UPLOAD_PRESET);
+
+            try {
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+                    method: 'POST', body: formData
+                });
+                const data = await res.json();
+                return data.secure_url;
+            } catch (err) {
+                console.error("Upload Error:", err);
+                return null;
+            }
+        }
+
+        // --- 5. FORM SUBMIT (THE UPLOAD HAPPENS HERE) ---
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerText;
+
+            // 1. UI Loading State
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Uploading Images... (0%)";
+
+            // 2. Process Images
+            let finalImageUrls = [];
+            let uploadCount = 0;
+            let totalNewFiles = currentImages.filter(img => img.type === 'file').length;
+
+            // Loop through all images in the grid
+            for (let img of currentImages) {
+                if (img.type === 'url') {
+                    // Keep existing URL
+                    finalImageUrls.push(img.value);
+                } else {
+                    // It's a new file -> Upload NOW
+                    const url = await uploadToCloudinary(img.value);
+                    if (url) {
+                        finalImageUrls.push(url);
+                        uploadCount++;
+                        if (totalNewFiles > 0) {
+                            submitBtn.innerText = `Uploading Images... (${Math.round((uploadCount / totalNewFiles) * 100)}%)`;
+                        }
+                    }
+                }
+            }
+
+            // 3. Prepare Data
+            submitBtn.innerText = "Saving to Database...";
+            const id = document.getElementById('prodId').value;
+            const productData = {
+                name: document.getElementById('name').value,
+                category: document.getElementById('category').value,
+                price: parseFloat(document.getElementById('price').value),
+                stock: document.getElementById('stock').value,
+                description: document.getElementById('description').value,
+                origin: document.getElementById('origin').value,
+                finish: document.getElementById('finish').value,
+                images: finalImageUrls // The final list of strings
+            };
+
+            // 4. Send to Backend
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${API_URL}/${id}` : API_URL;
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(productData)
+                });
+
+                if (res.ok) {
+                    alert(id ? 'Product Updated!' : 'Product Added!');
+                    resetForm();
+                    fetchProducts();
+                } else {
+                    alert("Error saving product to database.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server connection failed.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        });
+
+        // --- 6. CRUD UTILS ---
+        async function fetchProducts() {
+            try {
+                const res = await fetch(API_URL);
+                products = await res.json();
+                renderTable();
+            } catch (err) { console.error("API Error", err); }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = '';
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                const firstImg = (p.images && p.images.length > 0) ? p.images[0] : '';
+                tr.innerHTML = `
+                    <td><img src="${firstImg}" class="img-preview" onerror="this.style.display='none'"></td>
+                    <td>${p.name}</td>
+                    <td><span style="text-transform:capitalize">${p.category}</span></td>
+                    <td>₹${p.price}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-btn" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            document.getElementById('formTitle').innerText = "Edit Product";
+            document.getElementById('submitBtn').innerText = "Update Product";
+            document.getElementById('cancelBtn').style.display = 'block';
+
+            document.getElementById('prodId').value = product.id;
+            document.getElementById('name').value = product.name;
+            document.getElementById('category').value = product.category;
+            document.getElementById('price').value = product.price;
+            document.getElementById('stock').value = product.stock;
+            document.getElementById('description').value = product.description;
+            document.getElementById('origin').value = product.origin;
+            document.getElementById('finish').value = product.finish;
+
+            // PRELOAD EXISTING IMAGES
+            currentImages = [];
+            if (product.images) {
+                product.images.forEach(url => {
+                    currentImages.push({ type: 'url', value: url });
+                });
+            }
+            renderImagePreviews();
+        }
+
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('prodId').value = '';
+            document.getElementById('formTitle').innerText = "Add New Product";
+            document.getElementById('submitBtn').innerText = "Add Product";
+            document.getElementById('cancelBtn').style.display = 'none';
+
+            currentImages = [];
+            renderImagePreviews();
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            document.getElementById('camera-container').style.display = 'none';
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                fetchProducts();
+            }
+        }
+
+        fetchProducts();
+    </script>
+
+    <script>
+        // Check if token exists
+        if (!localStorage.getItem('adminToken')) {
+            window.location.href = 'login.html';
+        }
+
+        // Logout Function
+        function logout() {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

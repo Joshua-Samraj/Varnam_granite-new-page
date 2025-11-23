@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | LuxeStone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1a1a1a; --accent: #c5a059; --white: #ffffff; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--primary);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .login-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        h2 { margin-bottom: 20px; color: var(--primary); }
+        span { color: var(--accent); }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+        button:hover { background: #b08d4c; }
+        .error { color: red; font-size: 0.9rem; margin-top: 10px; display: none; }
+        .back-link { display: block; margin-top: 15px; font-size: 0.8rem; text-decoration: none; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>Luxe<span>Stone</span></h2>
+        <p style="margin-bottom:20px; color:#666;">Admin Panel Access</p>
+        
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="loginBtn">Login</button>
+        </form>
+        
+        <p class="error" id="errorMsg">Invalid Username or Password</p>
+        <a href="index.html" class="back-link">&larr; Back to Website</a>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/login'; // Change to relative path '/api/login' on Vercel
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const btn = document.getElementById('loginBtn');
+
+            btn.innerText = "Verifying...";
+            
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // Save token to browser
+                    localStorage.setItem('adminToken', data.token);
+                    window.location.href = 'admin_2.html';
+                } else {
+                    errorMsg.style.display = 'block';
+                    btn.innerText = "Login";
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Server Error");
+                btn.innerText = "Login";
+            }
+        });
+    </script>
+</body>
+</html>
