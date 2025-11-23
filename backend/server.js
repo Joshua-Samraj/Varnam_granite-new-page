@@ -8,28 +8,21 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- MIDDLEWARE ---
-app.use(cors()); // Allow frontend to talk to backend
-app.use(bodyParser.json()); // Parse JSON bodies
+app.use(cors());
+app.use(bodyParser.json());
 
 // --- DATABASE CONNECTION ---
-// This optimized function works for both Local testing and Vercel
 const connectDB = async () => {
     try {
-        // If already connected, do nothing (saves resources)
         if (mongoose.connection.readyState === 1) {
             return;
         }
-        
-        // Connect to MongoDB
         await mongoose.connect(process.env.MONGO_URI);
         console.log("✅ MongoDB Connected Successfully");
-        
     } catch (error) {
         console.error("❌ MongoDB Connection Error:", error);
     }
 };
-
-// --- SCHEMA DEFINITION ---
 const productSchema = new mongoose.Schema({
     id: Number,
     name: String,
@@ -39,23 +32,27 @@ const productSchema = new mongoose.Schema({
     description: String,
     origin: String,
     finish: String,
-    images: [String],
-    reviews: Array
-}, { collection: 'products' }); // <--- Forces collection name to be 'products'
+    images: [String], // Product images
+    reviews: [{
+        user: String,
+        rating: Number,
+        text: String,
+        images: [String], // <--- MUST BE AN ARRAY like this
+        date: { type: Date, default: Date.now }
+    }]
+}, { collection: 'products' });
 
 const Product = mongoose.model('Product', productSchema);
-
 // --- API ROUTES ---
 
 // 1. GET ALL PRODUCTS
 app.get('/api/products', async (req, res) => {
-    await connectDB(); // Ensure DB is connected
+    await connectDB();
     try {
         const products = await Product.find();
         console.log(`📡 Fetched ${products.length} products`);
         res.json(products);
     } catch (error) {
-        console.error("Error fetching products:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -66,14 +63,13 @@ app.post('/api/products', async (req, res) => {
     try {
         const newProduct = new Product({
             ...req.body,
-            id: Date.now(), // Auto-generate simple ID
+            id: Date.now(),
             reviews: []
         });
         await newProduct.save();
         console.log(`✨ Product Added: ${newProduct.name}`);
         res.json(newProduct);
     } catch (error) {
-        console.error("Error adding product:", error);
         res.status(500).json({ error: "Failed to add product" });
     }
 });
@@ -83,14 +79,13 @@ app.put('/api/products/:id', async (req, res) => {
     await connectDB();
     try {
         const updatedProduct = await Product.findOneAndUpdate(
-            { id: req.params.id }, // Find by custom ID
+            { id: req.params.id },
             req.body,
-            { new: true } // Return the updated document
+            { new: true }
         );
         console.log(`📝 Product Updated: ID ${req.params.id}`);
         res.json(updatedProduct);
     } catch (error) {
-        console.error("Error updating product:", error);
         res.status(500).json({ error: "Failed to update product" });
     }
 });
@@ -100,39 +95,35 @@ app.delete('/api/products/:id', async (req, res) => {
     await connectDB();
     try {
         await Product.findOneAndDelete({ id: req.params.id });
-        console.log(`🗑️  Product Deleted: ID ${req.params.id}`);
+        console.log(`🗑️ Product Deleted: ID ${req.params.id}`);
         res.json({ message: "Product deleted successfully" });
     } catch (error) {
-        console.error("Error deleting product:", error);
         res.status(500).json({ error: "Failed to delete product" });
     }
 });
-// login route
-app.post('/api/login',(req, res) =>{
-    const {username , password} = req.body;
-    if(username == process.env.ADMIN_USER && password == process.env.ADMIN_PASS){
-        res.json({ success: true , token : 'Varnam-granites-tokens-123'});
-        
-    }
-    else {
-        res.status(401).json({success : false , massage: 'Invali Credentials'});
-    }
 
+// 5. LOGIN ROUTE (Fixed Typos)
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    // Check against .env variables
+    if (username == process.env.ADMIN_USER && password == process.env.ADMIN_PASS) {
+        res.json({ success: true, token: 'Varnam-granites-tokens-123' });
+    } else {
+        res.status(401).json({ success: false, message: 'Invalid Credentials' });
+    }
 });
-
-// --- NEW: ADD REVIEW ROUTE ---
+// 2. UPDATE REVIEW ROUTE (Handle the array)
 app.post('/api/products/:id/reviews', async (req, res) => {
     await connectDB();
-    const { user, rating, text } = req.body;
+    // We expect 'images' (plural) from the frontend
+    const { user, rating, text, images } = req.body; 
     const productId = req.params.id;
 
-    // Validate input
     if (!user || !rating || !text) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
     try {
-        // Use MongoDB $push to add to the reviews array
         const updatedProduct = await Product.findOneAndUpdate(
             { id: productId },
             { 
@@ -141,11 +132,12 @@ app.post('/api/products/:id/reviews', async (req, res) => {
                         user, 
                         rating: parseInt(rating), 
                         text, 
+                        images: images || [], // <--- Save the array directly
                         date: new Date() 
                     } 
                 } 
             },
-            { new: true } // Return the updated product
+            { new: true }
         );
 
         if (updatedProduct) {
@@ -158,14 +150,12 @@ app.post('/api/products/:id/reviews', async (req, res) => {
         res.status(500).json({ error: "Failed to add review" });
     }
 });
-
-// Health Check Route
+// Root Route
 app.get('/', (req, res) => {
-    res.send("Varnam granites Backend is Live & Running!");
+    res.send("Varnam Granites Backend is Live!");
 });
 
 // --- SERVER START ---
-// This condition prevents Vercel from trying to start the server twice
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
@@ -173,5 +163,4 @@ if (require.main === module) {
     });
 }
 
-// Export app for Vercel
 module.exports = app;

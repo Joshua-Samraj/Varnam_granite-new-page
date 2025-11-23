@@ -35,11 +35,11 @@
         .btn.cancel { background: #999; margin-top: 10px; display: none; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
         
-        /* --- CAMERA CONTROLS (MOBILE FRIENDLY) --- */
+        /* --- CAMERA CONTROLS --- */
         .camera-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .cam-btn { background: #333; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 4px; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 100%; }
         .cam-btn i { font-size: 1.2rem; }
-        #captureBtn { grid-column: 1 / -1; background: var(--accent); } /* Full width capture button */
+        #captureBtn { grid-column: 1 / -1; background: var(--accent); } 
 
         #camera-container { display: none; margin-bottom: 15px; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
         video { width: 100%; display: block; }
@@ -54,29 +54,30 @@
         .url-input-group { display: flex; gap: 5px; margin-top: 10px; }
         .add-url-btn { width: auto; padding: 0 20px; background: var(--primary); white-space: nowrap; }
 
-        /* --- TABLE STYLES (SCROLLABLE) --- */
+        /* --- TABLE STYLES --- */
         .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; } /* Min width forces scroll on mobile */
+        table { width: 100%; border-collapse: collapse; min-width: 600px; } 
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         th { background: var(--primary); color: white; white-space: nowrap; }
         .action-btn { padding: 6px 10px; border: none; cursor: pointer; border-radius: 4px; color: white; margin-right: 5px; }
         .edit-btn { background: var(--accent); }
         .delete-btn { background: #c0392b; }
+        .share-btn { background: #2980b9; } /* Blue Share Button */
         .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; }
 
-        /* --- MOBILE RESPONSIVE RULES --- */
+        /* --- MODAL STYLES --- */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; position: relative; animation: fadeIn 0.3s; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #aaa; }
+        .close-modal:hover { color: #000; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+
         @media(max-width: 900px) {
             .admin-grid { grid-template-columns: 1fr; gap: 20px; }
             .header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: space-between; }
             .logout-btn { padding: 8px 20px; }
-            
-            /* Make form inputs larger for touch */
             input, select, textarea { font-size: 16px; } 
-            
-            /* Table adjustments */
-            .card { padding: 15px; }
-            h3 { margin-top: 0; }
         }
     </style>
 </head>
@@ -90,6 +91,24 @@
             window.location.href = 'login.html';
         }
     </script>
+
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeShareModal()">&times;</span>
+            <h3 style="margin-top:0;">Get Customer Review</h3>
+            <p style="color:#666; font-size:0.9rem;">Share this link with your customer to write a review for:</p>
+            <h4 id="shareProdName" style="color:var(--accent); margin: 10px 0;">Product Name</h4>
+            
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <input type="text" id="shareLinkInput" readonly style="margin-bottom:0; background:#f9f9f9; color:#555; font-size:0.85rem;">
+                <button class="btn" onclick="copyLink()" style="width:auto; padding:0 20px;"><i class="fas fa-copy"></i></button>
+            </div>
+            
+            <div id="copySuccess" style="color:green; font-size:0.85rem; margin-top:10px; display:none; font-weight:600;">
+                <i class="fas fa-check"></i> Link copied!
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <div class="header">
@@ -108,7 +127,6 @@
 
                     <div class="form-group">
                         <label>Product Images</label>
-                        
                         <div class="camera-controls">
                             <button type="button" class="cam-btn" onclick="document.getElementById('fileInput').click()">
                                 <i class="fas fa-folder-open"></i> <span>Files</span>
@@ -120,27 +138,20 @@
                                 <i class="fas fa-circle"></i> <span>Snap Photo</span>
                             </button>
                         </div>
-
                         <input type="file" id="fileInput" style="display: none;" accept="image/*" multiple onchange="handleFileSelect(this)">
-                        
                         <div id="camera-container">
                             <video id="video" autoplay playsinline></video>
                             <canvas id="canvas" style="display:none;"></canvas>
                         </div>
-
                         <div class="url-input-group">
                             <input type="text" id="manualUrl" placeholder="Or paste URL...">
                             <button type="button" class="btn add-url-btn" onclick="addManualUrl()">Add</button>
                         </div>
-
                         <div class="image-grid" id="imagePreviewContainer"></div>
+                        <small style="color: #666; font-size: 0.8rem; display:block; margin-top:5px;">Images upload when you click Save.</small>
                     </div>
 
-                    <div class="form-group">
-                        <label>Product Name</label>
-                        <input type="text" id="name" required>
-                    </div>
-
+                    <div class="form-group"><label>Product Name</label><input type="text" id="name" required></div>
                     <div class="form-group">
                         <label>Category</label>
                         <select id="category">
@@ -149,31 +160,11 @@
                             <option value="granite">Granite</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label>Price (₹/sq.ft)</label>
-                        <input type="number" step="0.01" id="price" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Stock Status</label>
-                        <input type="text" id="stock" placeholder="e.g. In Stock" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="description" rows="3" required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Origin</label>
-                        <input type="text" id="origin" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Finish</label>
-                        <input type="text" id="finish" required>
-                    </div>
+                    <div class="form-group"><label>Price (₹/sq.ft)</label><input type="number" step="0.01" id="price" required></div>
+                    <div class="form-group"><label>Stock Status</label><input type="text" id="stock" placeholder="e.g. In Stock" required></div>
+                    <div class="form-group"><label>Description</label><textarea id="description" rows="3" required></textarea></div>
+                    <div class="form-group"><label>Origin</label><input type="text" id="origin" required></div>
+                    <div class="form-group"><label>Finish</label><input type="text" id="finish" required></div>
 
                     <button type="submit" class="btn" id="submitBtn">Add Product</button>
                     <button type="button" class="btn cancel" id="cancelBtn" onclick="resetForm()">Cancel Edit</button>
@@ -201,6 +192,7 @@
     </div>
 
     <script>
+        // --- CONFIGURATION ---
         const API_URL = 'https://varnam-granite-new-page.vercel.app/api/products'; 
         const CLOUD_NAME = 'dyhajxcyf'; 
         const UPLOAD_PRESET = 'Varnam_Granites'; 
@@ -209,7 +201,38 @@
         let currentImages = []; 
         let stream = null; 
 
-        // --- 1. IMAGES ---
+        // --- SHARE MODAL LOGIC ---
+        function openShareModal(id) {
+            const p = products.find(prod => prod.id === id);
+            if(!p) return;
+
+            document.getElementById('shareProdName').innerText = p.name;
+            // Create the link to review.html
+            const link = `${window.location.origin}/review.html?id=${p.id}`;
+            
+            document.getElementById('shareLinkInput').value = link;
+            document.getElementById('copySuccess').style.display = 'none';
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function copyLink() {
+            const copyText = document.getElementById("shareLinkInput");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value);
+            document.getElementById('copySuccess').style.display = 'block';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('shareModal');
+            if (event.target == modal) closeShareModal();
+        }
+
+        // --- IMAGE HANDLING ---
         function renderImagePreviews() {
             const container = document.getElementById('imagePreviewContainer');
             container.innerHTML = ''; 
@@ -223,137 +246,70 @@
             });
         }
 
-        function removeImage(index) {
-            currentImages.splice(index, 1);
-            renderImagePreviews();
-        }
+        function removeImage(index) { currentImages.splice(index, 1); renderImagePreviews(); }
+        function addManualUrl() { const i = document.getElementById('manualUrl'); if(i.value) { currentImages.push({ type: 'url', value: i.value }); i.value = ''; renderImagePreviews(); } }
+        function handleFileSelect(input) { if (input.files) { Array.from(input.files).forEach(file => { currentImages.push({ type: 'file', value: file, preview: URL.createObjectURL(file) }); }); renderImagePreviews(); input.value = ''; } }
 
-        function addManualUrl() {
-            const input = document.getElementById('manualUrl');
-            if(input.value) {
-                currentImages.push({ type: 'url', value: input.value });
-                input.value = ''; renderImagePreviews();
-            }
-        }
-
-        function handleFileSelect(input) {
-            if (input.files) {
-                Array.from(input.files).forEach(file => {
-                    currentImages.push({ type: 'file', value: file, preview: URL.createObjectURL(file) });
-                });
-                renderImagePreviews();
-                input.value = '';
-            }
-        }
-
-        // --- 2. CAMERA ---
+        // --- CAMERA ---
         async function startCamera() {
-            const video = document.getElementById('video');
-            const container = document.getElementById('camera-container');
-            const captureBtn = document.getElementById('captureBtn');
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                video.srcObject = stream;
-                container.style.display = 'block';
-                captureBtn.style.display = 'flex';
-            } catch (err) { alert("Camera access denied."); }
+            const video = document.getElementById('video'); const container = document.getElementById('camera-container'); const captureBtn = document.getElementById('captureBtn');
+            try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); video.srcObject = stream; container.style.display = 'block'; captureBtn.style.display = 'flex'; } 
+            catch (err) { alert("Camera access denied."); }
         }
-
         function capturePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            canvas.toBlob(blob => {
-                currentImages.push({ type: 'file', value: blob, preview: URL.createObjectURL(blob) });
-                renderImagePreviews();
-                if(stream) stream.getTracks().forEach(t => t.stop());
-                document.getElementById('camera-container').style.display = 'none';
-                document.getElementById('captureBtn').style.display = 'none';
-            }, 'image/jpeg', 0.8);
+            const video = document.getElementById('video'); const canvas = document.getElementById('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob(blob => { currentImages.push({ type: 'file', value: blob, preview: URL.createObjectURL(blob) }); renderImagePreviews(); 
+            if(stream) stream.getTracks().forEach(t => t.stop()); document.getElementById('camera-container').style.display = 'none'; document.getElementById('captureBtn').style.display = 'none'; }, 'image/jpeg', 0.8);
         }
 
-        // --- 3. UPLOAD ---
+        // --- UPLOAD ---
         async function uploadToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', UPLOAD_PRESET);
-            try {
-                const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
-                const data = await res.json();
-                return data.secure_url;
-            } catch (err) { return null; }
+            const formData = new FormData(); formData.append('file', file); formData.append('upload_preset', UPLOAD_PRESET);
+            try { const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData }); const data = await res.json(); return data.secure_url; } catch (err) { return null; }
         }
 
-        // --- 4. SUBMIT ---
+        // --- SUBMIT ---
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerText;
-            
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Uploading...";
+            submitBtn.disabled = true; submitBtn.innerText = "Uploading...";
 
             let finalImageUrls = [];
             let uploadCount = 0;
             let totalNewFiles = currentImages.filter(img => img.type === 'file').length;
 
             for (let img of currentImages) {
-                if (img.type === 'url') {
-                    finalImageUrls.push(img.value);
-                } else {
-                    const url = await uploadToCloudinary(img.value);
-                    if (url) {
-                        finalImageUrls.push(url);
-                        uploadCount++;
-                        if(totalNewFiles > 0) submitBtn.innerText = `Uploading... (${Math.round((uploadCount/totalNewFiles)*100)}%)`;
-                    }
-                }
+                if (img.type === 'url') { finalImageUrls.push(img.value); } 
+                else { const url = await uploadToCloudinary(img.value); if (url) { finalImageUrls.push(url); uploadCount++; if(totalNewFiles > 0) submitBtn.innerText = `Uploading... (${Math.round((uploadCount/totalNewFiles)*100)}%)`; } }
             }
 
             submitBtn.innerText = "Saving...";
             const id = document.getElementById('prodId').value;
             const productData = {
-                name: document.getElementById('name').value,
-                category: document.getElementById('category').value,
-                price: parseFloat(document.getElementById('price').value),
-                stock: document.getElementById('stock').value,
-                description: document.getElementById('description').value,
-                origin: document.getElementById('origin').value,
-                finish: document.getElementById('finish').value,
-                images: finalImageUrls
+                name: document.getElementById('name').value, category: document.getElementById('category').value,
+                price: parseFloat(document.getElementById('price').value), stock: document.getElementById('stock').value,
+                description: document.getElementById('description').value, origin: document.getElementById('origin').value,
+                finish: document.getElementById('finish').value, images: finalImageUrls
             };
 
             const method = id ? 'PUT' : 'POST';
             const url = id ? `${API_URL}/${id}` : API_URL;
 
             try {
-                const res = await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(productData)
-                });
-                if (res.ok) {
-                    alert(id ? 'Updated!' : 'Added!');
-                    resetForm();
-                    fetchProducts();
-                } else { alert("Error saving."); }
-            } catch (err) { alert("Server Error."); } 
-            finally { submitBtn.disabled = false; submitBtn.innerText = originalText; }
+                const res = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(productData) });
+                if (res.ok) { alert(id ? 'Updated!' : 'Added!'); resetForm(); fetchProducts(); } else { alert("Error saving."); }
+            } catch (err) { alert("Server Error."); } finally { submitBtn.disabled = false; submitBtn.innerText = originalText; }
         });
 
-        // --- 5. CRUD ---
+        // --- CRUD ---
         async function fetchProducts() {
-            try {
-                const res = await fetch(API_URL);
-                products = await res.json();
-                renderTable();
-            } catch(err) {}
+            try { const res = await fetch(API_URL); products = await res.json(); renderTable(); } catch(err) {}
         }
 
         function renderTable() {
-            const tbody = document.getElementById('productTableBody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('productTableBody'); tbody.innerHTML = '';
             products.forEach(p => {
                 const firstImg = (p.images && p.images.length > 0) ? p.images[0] : '';
                 tbody.innerHTML += `
@@ -363,8 +319,9 @@
                         <td>${p.category}</td>
                         <td>₹${p.price}</td>
                         <td style="white-space: nowrap;">
-                            <button class="action-btn edit-btn" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete-btn" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                            <button class="action-btn edit-btn" onclick="editProduct(${p.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn share-btn" onclick="openShareModal(${p.id})" title="Share Review Link"><i class="fas fa-share-alt"></i></button>
+                            <button class="action-btn delete-btn" onclick="deleteProduct(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
             });
@@ -375,41 +332,24 @@
             document.getElementById('formTitle').innerText = "Edit Product";
             document.getElementById('submitBtn').innerText = "Update";
             document.getElementById('cancelBtn').style.display = 'block';
-            
             document.getElementById('prodId').value = p.id;
-            document.getElementById('name').value = p.name;
-            document.getElementById('category').value = p.category;
-            document.getElementById('price').value = p.price;
-            document.getElementById('stock').value = p.stock;
-            document.getElementById('description').value = p.description;
-            document.getElementById('origin').value = p.origin;
+            document.getElementById('name').value = p.name; document.getElementById('category').value = p.category;
+            document.getElementById('price').value = p.price; document.getElementById('stock').value = p.stock;
+            document.getElementById('description').value = p.description; document.getElementById('origin').value = p.origin;
             document.getElementById('finish').value = p.finish;
-
-            currentImages = [];
-            if(p.images) p.images.forEach(url => currentImages.push({ type: 'url', value: url }));
-            renderImagePreviews();
-            
-            // Scroll to top on mobile
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            currentImages = []; if(p.images) p.images.forEach(url => currentImages.push({ type: 'url', value: url }));
+            renderImagePreviews(); window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function resetForm() {
-            document.getElementById('productForm').reset();
-            document.getElementById('prodId').value = '';
-            document.getElementById('formTitle').innerText = "Add New Product";
-            document.getElementById('submitBtn').innerText = "Add Product";
-            document.getElementById('cancelBtn').style.display = 'none';
-            currentImages = [];
-            renderImagePreviews();
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('camera-container').style.display = 'none';
+            document.getElementById('productForm').reset(); document.getElementById('prodId').value = '';
+            document.getElementById('formTitle').innerText = "Add New Product"; document.getElementById('submitBtn').innerText = "Add Product";
+            document.getElementById('cancelBtn').style.display = 'none'; currentImages = []; renderImagePreviews();
+            if(stream) stream.getTracks().forEach(t => t.stop()); document.getElementById('camera-container').style.display = 'none';
         }
 
         async function deleteProduct(id) {
-            if (confirm('Delete this product?')) {
-                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-                fetchProducts();
-            }
+            if (confirm('Delete this product?')) { await fetch(`${API_URL}/${id}`, { method: 'DELETE' }); fetchProducts(); }
         }
 
         fetchProducts();
