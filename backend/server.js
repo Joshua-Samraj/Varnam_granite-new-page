@@ -120,7 +120,44 @@ app.post('/api/login',(req, res) =>{
 
 });
 
+// --- NEW: ADD REVIEW ROUTE ---
+app.post('/api/products/:id/reviews', async (req, res) => {
+    await connectDB();
+    const { user, rating, text } = req.body;
+    const productId = req.params.id;
 
+    // Validate input
+    if (!user || !rating || !text) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        // Use MongoDB $push to add to the reviews array
+        const updatedProduct = await Product.findOneAndUpdate(
+            { id: productId },
+            { 
+                $push: { 
+                    reviews: { 
+                        user, 
+                        rating: parseInt(rating), 
+                        text, 
+                        date: new Date() 
+                    } 
+                } 
+            },
+            { new: true } // Return the updated product
+        );
+
+        if (updatedProduct) {
+            res.json({ success: true, reviews: updatedProduct.reviews });
+        } else {
+            res.status(404).json({ error: "Product not found" });
+        }
+    } catch (error) {
+        console.error("Review Error:", error);
+        res.status(500).json({ error: "Failed to add review" });
+    }
+});
 
 // Health Check Route
 app.get('/', (req, res) => {
