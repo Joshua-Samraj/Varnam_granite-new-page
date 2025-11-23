@@ -14,13 +14,13 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         img { max-width: 100%; display: block; }
         
-        /* --- LOADING SPINNER --- */
+        /* LOADING SPINNER */
         .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 0; text-align: center; }
         .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loading-text { font-weight: 500; color: var(--primary); font-size: 1.1rem; }
 
-        /* --- PRODUCT LAYOUT --- */
+        /* PRODUCT LAYOUT */
         .product-wrapper { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; margin-top:20px; }
         
         /* Gallery */
@@ -28,7 +28,7 @@
         .main-image { position: relative; border: 1px solid #eee; margin-bottom: 10px; background: #f9f9f9; min-height: 400px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .main-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        /* Arrows */
+        /* Main Gallery Arrows */
         .arrow-btn { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(255, 255, 255, 0.8); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: 0.3s; display: flex; align-items: center; justify-content: center; z-index: 2; }
         .arrow-btn:hover { background-color: var(--primary); color: #fff; }
         .prev-btn { left: 10px; }
@@ -53,7 +53,7 @@
         .reviews-section { margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; }
         .review-card { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
 
-        /* --- NEW: CUSTOMER PHOTOS SECTION --- */
+        /* --- CUSTOMER PHOTOS SECTION --- */
         #customerPhotosSection { margin-top: 40px; margin-bottom: 20px; display: none; }
         .cp-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .cp-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
@@ -63,23 +63,32 @@
         }
         .cp-item img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
         .cp-item:hover img { transform: scale(1.1); }
-        
-        /* The "+3" Overlay */
         .cp-count { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.6); color: white; display: flex; align-items: center; justify-content: center; 
             font-weight: bold; font-size: 1.1rem; pointer-events: none; 
         }
 
-        /* --- NEW: LIGHTBOX VIEWER --- */
+        /* --- LIGHTBOX VIEWER --- */
         .lightbox { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; 
             animation: fadeIn 0.2s;
         }
-        .lightbox img { max-width: 90%; max-height: 90vh; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; transition: 0.2s; }
+        .lightbox img { max-width: 85%; max-height: 85vh; border-radius: 4px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; transition: 0.2s; z-index: 2002; }
         .lightbox-close:hover { color: var(--accent); }
+        
+        /* Lightbox Navigation */
+        .lb-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.1); color: white; border: none; 
+            font-size: 2rem; padding: 15px; cursor: pointer; transition: 0.3s;
+            z-index: 2001; border-radius: 5px;
+        }
+        .lb-btn:hover { background: rgba(255,255,255,0.3); }
+        .lb-prev { left: 20px; }
+        .lb-next { right: 20px; }
 
         /* Recommendations */
         .rec-section { margin-top: 60px; padding-top: 40px; border-top: 1px solid #eee; }
@@ -100,7 +109,10 @@
 
     <div id="lightbox" class="lightbox">
         <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <button class="lb-btn lb-prev" onclick="changeLightboxImage(-1)">&#10094;</button>
         <img id="lightboxImg" src="">
+        <button class="lb-btn lb-next" onclick="changeLightboxImage(1)">&#10095;</button>
+        <div id="lbCounter" style="position:absolute; bottom:20px; color:white; font-size:0.9rem;"></div>
     </div>
 
     <div class="container">
@@ -156,11 +168,14 @@
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const API_URL = 'https://varnam-granite-new-page.vercel.app/api/products';
 
         let currentImageIndex = 0;
         let productImages = [];
+        
+        // Global vars for Lightbox
+        let allCustomerPhotos = [];
+        let lightboxIndex = 0;
 
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -171,7 +186,6 @@
                 return;
             }
 
-            // FETCH FROM API
             fetch(API_URL)
                 .then(response => {
                     if (!response.ok) throw new Error("Server Offline");
@@ -198,7 +212,7 @@
             document.getElementById('content').style.display = 'grid';
             document.getElementById('reviewsSection').style.display = 'block';
 
-            // Images
+            // 1. Main Product Images
             if (product.images && product.images.length > 0) {
                 productImages = product.images;
             } else {
@@ -206,7 +220,7 @@
             }
             currentImageIndex = 0;
 
-            // Text Data
+            // 2. Fill Info
             document.title = product.name + " | Varnam Granites";
             document.getElementById('productTitle').innerText = product.name;
             document.getElementById('categoryName').innerText = product.category;
@@ -215,7 +229,6 @@
             document.getElementById('origin').innerText = product.origin || "Unknown";
             document.getElementById('finish').innerText = product.finish || "Standard";
 
-            // Stock
             const stockEl = document.getElementById('stockStatus');
             stockEl.innerText = product.stock;
             stockEl.className = 'stock-status';
@@ -226,59 +239,73 @@
             updateMainImage();
             renderThumbnails();
             
-            // Render Reviews & Customer Photos
+            // 3. Render Reviews & Customer Photos
             if(product.reviews && product.reviews.length > 0) {
+                // Process photos FIRST so we populate allCustomerPhotos
+                collectCustomerPhotos(product.reviews);
                 renderReviews(product.reviews);
-                renderCustomerPhotos(product.reviews);
             } else {
                 document.getElementById('reviewsContainer').innerHTML = "<p>No reviews yet.</p>";
             }
         }
 
-        // --- CUSTOMER PHOTOS LOGIC ---
-        function renderCustomerPhotos(reviews) {
+        // --- CUSTOMER PHOTO LOGIC ---
+        function collectCustomerPhotos(reviews) {
+            allCustomerPhotos = [];
+            // Loop through reviews and extract all image arrays
+            reviews.forEach(rev => {
+                if (rev.images && Array.isArray(rev.images)) {
+                    rev.images.forEach(img => {
+                        if(img) allCustomerPhotos.push(img);
+                    });
+                } 
+                // Backward compatibility for old schema (single string)
+                else if (rev.image) {
+                    allCustomerPhotos.push(rev.image);
+                }
+            });
+
+            renderCustomerPhotoGrid();
+        }
+
+        function renderCustomerPhotoGrid() {
             const container = document.getElementById('customerPhotos');
             const section = document.getElementById('customerPhotosSection');
-            
-            // Filter only reviews that have an image
-            const reviewsWithImages = reviews.filter(r => r.image && r.image.trim() !== "");
-            
-            if (reviewsWithImages.length === 0) {
+
+            if (allCustomerPhotos.length === 0) {
                 section.style.display = 'none';
                 return;
             }
-            
+
             section.style.display = 'block';
             container.innerHTML = '';
-            
-            // We display up to 5 thumbnails. The 5th one shows a counter if there are more.
+
             const displayLimit = 5;
-            
-            reviewsWithImages.slice(0, displayLimit).forEach((rev, index) => {
+            allCustomerPhotos.slice(0, displayLimit).forEach((imgUrl, index) => {
                 const div = document.createElement('div');
                 div.className = 'cp-item';
-                div.onclick = () => openLightbox(rev.image); // Open lightbox on click
-                
+                div.onclick = () => openLightbox(index);
+
                 const img = document.createElement('img');
-                img.src = rev.image;
+                img.src = imgUrl;
                 div.appendChild(img);
-                
-                // If this is the last visible item AND there are more items remaining
-                if (index === displayLimit - 1 && reviewsWithImages.length > displayLimit) {
-                    const count = reviewsWithImages.length - displayLimit + 1; // +1 because this thumb is also "hidden" under the overlay
+
+                // "+N" Overlay
+                if (index === displayLimit - 1 && allCustomerPhotos.length > displayLimit) {
+                    const count = allCustomerPhotos.length - displayLimit + 1;
                     const overlay = document.createElement('div');
                     overlay.className = 'cp-count';
                     overlay.innerText = `+${count}`;
                     div.appendChild(overlay);
                 }
-                
                 container.appendChild(div);
             });
         }
 
         // --- LIGHTBOX LOGIC ---
-        function openLightbox(url) {
-            document.getElementById('lightboxImg').src = url;
+        function openLightbox(index) {
+            lightboxIndex = index;
+            updateLightboxImage();
             document.getElementById('lightbox').style.display = 'flex';
         }
 
@@ -286,27 +313,45 @@
             document.getElementById('lightbox').style.display = 'none';
         }
 
-        // Close lightbox when clicking outside image
-        document.getElementById('lightbox').onclick = function(e) {
-            if(e.target !== document.getElementById('lightboxImg')) {
-                closeLightbox();
-            }
+        function changeLightboxImage(direction) {
+            lightboxIndex += direction;
+            if (lightboxIndex >= allCustomerPhotos.length) lightboxIndex = 0;
+            else if (lightboxIndex < 0) lightboxIndex = allCustomerPhotos.length - 1;
+            updateLightboxImage();
         }
 
+        function updateLightboxImage() {
+            document.getElementById('lightboxImg').src = allCustomerPhotos[lightboxIndex];
+            document.getElementById('lbCounter').innerText = `${lightboxIndex + 1} / ${allCustomerPhotos.length}`;
+        }
+
+        document.getElementById('lightbox').onclick = function(e) {
+            if(e.target === document.getElementById('lightbox')) closeLightbox();
+        }
+
+        // --- REVIEWS LIST ---
         function renderReviews(reviews) {
             const container = document.getElementById('reviewsContainer');
             container.innerHTML = '';
             
             reviews.slice().reverse().forEach(rev => {
                 let stars = '';
-                for(let i=0; i<5; i++) {
-                    stars += i < rev.rating ? '<i class="fas fa-star" style="color:#ffa41c"></i>' : '<i class="far fa-star" style="color:#ccc"></i>';
-                }
+                for(let i=0; i<5; i++) stars += i < rev.rating ? '<i class="fas fa-star" style="color:#ffa41c"></i>' : '<i class="far fa-star" style="color:#ccc"></i>';
                 
-                // If review has image, show it in the card too
+                // Handle multiple images in a review card
                 let revImgHTML = '';
-                if(rev.image) {
-                    revImgHTML = `<img src="${rev.image}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; margin-top:10px; cursor:pointer;" onclick="openLightbox('${rev.image}')">`;
+                if(rev.images && Array.isArray(rev.images) && rev.images.length > 0) {
+                    revImgHTML = '<div style="display:flex; gap:5px; margin-top:10px;">';
+                    rev.images.forEach(img => {
+                        // Find Global Index for Lightbox
+                        const globalIndex = allCustomerPhotos.indexOf(img);
+                        revImgHTML += `<img src="${img}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="openLightbox(${globalIndex})">`;
+                    });
+                    revImgHTML += '</div>';
+                } else if (rev.image) {
+                    // Fallback
+                    const globalIndex = allCustomerPhotos.indexOf(rev.image);
+                    revImgHTML = `<img src="${rev.image}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; margin-top:10px; cursor:pointer;" onclick="openLightbox(${globalIndex})">`;
                 }
 
                 container.innerHTML += `
@@ -323,7 +368,7 @@
             });
         }
 
-        // --- RECOMMENDATION LOGIC ---
+        // --- RECOMMENDATIONS ---
         function renderRecommendations(all, current) {
             const related = all.filter(p => p.category === current.category && p.id !== current.id).slice(0, 4);
             if(related.length > 0) {
@@ -338,22 +383,21 @@
                                 <div class="rec-name">${p.name}</div>
                                 <div class="rec-price">₹${p.price.toFixed(2)}</div>
                             </div>
-                        </a>
-                    `;
+                        </a>`;
                 }).join('');
             }
         }
 
-        // --- Gallery Logic ---
+        // --- MAIN GALLERY ---
         function renderThumbnails() {
-            const thumbContainer = document.getElementById('thumbnailContainer');
-            thumbContainer.innerHTML = '';
+            const container = document.getElementById('thumbnailContainer');
+            container.innerHTML = '';
             productImages.forEach((imgSrc, index) => {
                 const img = document.createElement('img');
                 img.src = imgSrc;
                 img.className = index === 0 ? 'thumb active' : 'thumb';
                 img.onclick = () => { currentImageIndex = index; updateMainImage(); };
-                thumbContainer.appendChild(img);
+                container.appendChild(img);
             });
         }
 
@@ -365,11 +409,11 @@
         }
 
         function updateMainImage() {
-            const mainImg = document.getElementById('mainImg');
-            mainImg.src = productImages[currentImageIndex];
-            const thumbs = document.querySelectorAll('.thumb');
-            thumbs.forEach(t => t.classList.remove('active'));
-            if(thumbs[currentImageIndex]) thumbs[currentImageIndex].classList.add('active');
+            document.getElementById('mainImg').src = productImages[currentImageIndex];
+            document.querySelectorAll('.thumb').forEach((t, i) => {
+                if(i === currentImageIndex) t.classList.add('active');
+                else t.classList.remove('active');
+            });
         }
     </script>
 </body>
