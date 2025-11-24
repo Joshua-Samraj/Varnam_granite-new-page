@@ -196,7 +196,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000/api/products'; 
+        const API_URL = 'https://varnam-granite-new-page.vercel.app/api/products'; 
         const CLOUD_NAME = 'dyhajxcyf'; 
         const UPLOAD_PRESET = 'Varnam_Granites'; 
 
@@ -218,7 +218,7 @@
             btn.classList.add('ai-loading'); btn.disabled = true;
 
             try {
-                const res = await fetch('http://localhost:3000/api/enhance-description', {
+                const res = await fetch('https://varnam-granite-new-page.vercel.app/api/enhance-description', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
