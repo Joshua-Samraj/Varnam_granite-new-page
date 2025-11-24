@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard | LuxeStone</title>
+    <title>Admin Dashboard | Varnam Granites</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -13,11 +13,13 @@
         body { font-family: 'Poppins', sans-serif; background-color: var(--light); color: var(--primary); padding: 15px; margin: 0; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* HEADER & LAYOUT */
+        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; background: var(--white); padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .header h2 { margin: 0; font-size: 1.5rem; }
         .header-actions { display: flex; gap: 15px; align-items: center; }
         .logout-btn { border: 1px solid #333; padding: 5px 15px; background: none; cursor: pointer; border-radius: 4px; font-size: 0.9rem; }
+
+        /* LAYOUT */
         .admin-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
         .card { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
         
@@ -29,40 +31,26 @@
         .btn:hover { background: var(--accent); }
         .btn.cancel { background: #999; margin-top: 10px; display: none; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
-
-        /* --- AI BUTTON STYLE --- */
-        .ai-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: linear-gradient(45deg, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            font-size: 0.75rem;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: 0.3s;
-        }
-        .ai-btn:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-        .ai-btn i { font-size: 0.8rem; }
+        
+        /* AI BUTTON */
+        .ai-btn { position: absolute; top: 0; right: 0; background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; border: none; padding: 5px 12px; font-size: 0.75rem; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
+        .ai-btn:hover { transform: scale(1.05); }
         .ai-loading { animation: pulse 1s infinite; opacity: 0.8; pointer-events: none; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
         
-        /* CAMERA & IMAGES */
+        /* CAMERA */
         .camera-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .cam-btn { background: #333; padding: 12px; color: white; border: none; cursor: pointer; border-radius: 4px; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 100%; }
         #captureBtn { grid-column: 1 / -1; background: var(--accent); } 
         #camera-container { display: none; margin-bottom: 15px; background: #000; border-radius: 8px; overflow: hidden; position: relative; }
         video { width: 100%; display: block; }
+
+        /* IMAGES */
         .image-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
         .thumb-wrapper { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
         .thumb-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
         .remove-img { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+        .new-badge { position: absolute; bottom: 0; left: 0; background: var(--accent); color: white; font-size: 9px; padding: 2px 4px; border-radius: 0 4px 0 0; }
         .url-input-group { display: flex; gap: 5px; margin-top: 10px; }
         .add-url-btn { width: auto; padding: 0 20px; background: var(--primary); white-space: nowrap; }
 
@@ -103,20 +91,24 @@
     <div id="shareModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeShareModal()">&times;</span>
-            <h3 style="margin-top:0;">Get Review</h3>
-            <p style="color:#666; font-size:0.9rem;">Share this link with customer:</p>
+            <h3 style="margin-top:0;">Get Customer Review</h3>
+            <p style="color:#666; font-size:0.9rem;">Share this secure link with your customer:</p>
             <h4 id="shareProdName" style="color:var(--accent); margin: 10px 0;">Product Name</h4>
+            
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <input type="text" id="shareLinkInput" readonly style="margin-bottom:0; background:#f9f9f9; color:#555; font-size:0.85rem;">
                 <button class="btn" onclick="copyLink()" style="width:auto; padding:0 20px;"><i class="fas fa-copy"></i></button>
             </div>
-            <div id="copySuccess" style="color:green; font-size:0.85rem; margin-top:10px; display:none; font-weight:600;">Link copied!</div>
+            
+            <div id="copySuccess" style="color:green; font-size:0.85rem; margin-top:10px; display:none; font-weight:600;">
+                Link copied!
+            </div>
         </div>
     </div>
 
     <div class="container">
         <div class="header">
-            <h2>LuxeStone <span>Admin</span></h2>
+            <h2>Varnam <span>Admin</span></h2>
             <div class="header-actions">
                 <a href="index.html" style="color: var(--accent); text-decoration: none;">View Site</a>
                 <button onclick="logout()" class="logout-btn">Logout</button>
@@ -152,7 +144,7 @@
                             <button type="button" class="btn add-url-btn" onclick="addManualUrl()">Add</button>
                         </div>
                         <div class="image-grid" id="imagePreviewContainer"></div>
-                        <small style="color: #666; font-size: 0.8rem; display:block; margin-top:5px;">Images will be compressed & uploaded on Save.</small>
+                        <small style="color: #666; font-size: 0.8rem; display:block; margin-top:5px;">Images are compressed & uploaded on Save.</small>
                     </div>
 
                     <div class="form-group"><label>Product Name</label><input type="text" id="name" required></div>
@@ -174,6 +166,7 @@
                         </button>
                         <textarea id="description" rows="3" placeholder="Enter rough notes (e.g. white marble, kitchen)" required></textarea>
                     </div>
+
                     <div class="form-group"><label>Origin</label><input type="text" id="origin" required></div>
                     <div class="form-group"><label>Finish</label><input type="text" id="finish" required></div>
 
@@ -203,7 +196,7 @@
     </div>
 
     <script>
-        const API_URL = 'https://varnam-granite-new-page.vercel.app/api/products'; 
+        const API_URL = 'http://localhost:3000/api/products'; 
         const CLOUD_NAME = 'dyhajxcyf'; 
         const UPLOAD_PRESET = 'Varnam_Granites'; 
 
@@ -211,27 +204,21 @@
         let currentImages = []; 
         let stream = null; 
 
-        // --- NEW: AI ENHANCEMENT FUNCTION ---
+        // --- AI DESCRIPTION ---
         async function enhanceDescription() {
             const descInput = document.getElementById('description');
             const nameInput = document.getElementById('name');
             const catInput = document.getElementById('category');
             const btn = document.getElementById('aiBtn');
 
-            if (!descInput.value.trim()) {
-                alert("Please enter some rough notes first!");
-                return;
-            }
+            if (!descInput.value.trim()) { alert("Please enter rough notes first!"); return; }
 
-            // UI Loading
             const originalContent = btn.innerHTML;
             btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enhancing...`;
-            btn.classList.add('ai-loading');
-            btn.disabled = true;
+            btn.classList.add('ai-loading'); btn.disabled = true;
 
             try {
-                // Need a separate endpoint in server.js to call Gemini safely
-                const res = await fetch('https://varnam-granite-new-page.vercel.app/api/enhance-description', {
+                const res = await fetch('http://localhost:3000/api/enhance-description', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -240,22 +227,11 @@
                         currentText: descInput.value
                     })
                 });
-
                 const data = await res.json();
-                if (data.success) {
-                    descInput.value = data.text.trim();
-                } else {
-                    alert("AI Error: " + (data.error || "Unknown error"));
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Failed to connect to AI service.");
-            } finally {
-                // Reset Button
-                btn.innerHTML = originalContent;
-                btn.classList.remove('ai-loading');
-                btn.disabled = false;
-            }
+                if (data.success) descInput.value = data.text.trim();
+                else alert("AI Error: " + (data.error || "Unknown"));
+            } catch (err) { alert("AI Connection Failed"); } 
+            finally { btn.innerHTML = originalContent; btn.classList.remove('ai-loading'); btn.disabled = false; }
         }
 
         // --- IMAGE COMPRESSION ---
@@ -264,7 +240,7 @@
                 const MAX_WIDTH = 1280; const MAX_HEIGHT = 1280; const MIME_TYPE = "image/jpeg"; const QUALITY = 0.7;
                 const blobURL = URL.createObjectURL(file);
                 const img = new Image(); img.src = blobURL;
-                img.onerror = function() { URL.revokeObjectURL(this.src); reject("Cannot load image"); };
+                img.onerror = function() { URL.revokeObjectURL(this.src); reject("Load error"); };
                 img.onload = function() {
                     URL.revokeObjectURL(this.src);
                     const canvas = document.createElement("canvas");
@@ -274,23 +250,31 @@
                     canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext("2d"); ctx.drawImage(img, 0, 0, width, height);
                     canvas.toBlob((blob) => {
-                        if(!blob) { reject("Compression failed"); return; }
-                        const compressedFile = new File([blob], file.name, { type: MIME_TYPE, lastModified: Date.now() });
-                        resolve(compressedFile);
+                        if(!blob) { reject("Compression error"); return; }
+                        resolve(new File([blob], file.name, { type: MIME_TYPE, lastModified: Date.now() }));
                     }, MIME_TYPE, QUALITY);
                 };
             });
         }
 
-        // --- SHARE MODAL ---
-        function openShareModal(id) {
+        // --- SHARE LINK ---
+        async function openShareModal(id) {
             const p = products.find(prod => prod.id === id);
             if(!p) return;
             document.getElementById('shareProdName').innerText = p.name;
-            const link = `${window.location.origin}/review.html?id=${p.id}`;
-            document.getElementById('shareLinkInput').value = link;
-            document.getElementById('copySuccess').style.display = 'none';
+            const input = document.getElementById('shareLinkInput');
+            
+            input.value = "Generating secure link...";
             document.getElementById('shareModal').style.display = 'flex';
+
+            try {
+                const res = await fetch(`${API_URL}/${id}/generate-token`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    input.value = `${window.location.origin}/review.html?id=${p.id}&token=${data.token}`;
+                    document.getElementById('copySuccess').style.display = 'none';
+                } else input.value = "Error generating link";
+            } catch (err) { input.value = "Server Error"; }
         }
         function closeShareModal() { document.getElementById('shareModal').style.display = 'none'; }
         function copyLink() {
@@ -301,7 +285,7 @@
         }
         window.onclick = function(event) { if (event.target == document.getElementById('shareModal')) closeShareModal(); }
 
-        // --- IMAGES & CAMERA ---
+        // --- IMAGES ---
         function renderImagePreviews() {
             const container = document.getElementById('imagePreviewContainer'); container.innerHTML = ''; 
             currentImages.forEach((img, index) => {
@@ -314,11 +298,12 @@
         function removeImage(index) { currentImages.splice(index, 1); renderImagePreviews(); }
         function addManualUrl() { const i = document.getElementById('manualUrl'); if(i.value) { currentImages.push({ type: 'url', value: i.value }); i.value = ''; renderImagePreviews(); } }
         function handleFileSelect(input) { if (input.files) { Array.from(input.files).forEach(file => { currentImages.push({ type: 'file', value: file, preview: URL.createObjectURL(file) }); }); renderImagePreviews(); input.value = ''; } }
-        
+
+        // --- CAMERA ---
         async function startCamera() {
             const video = document.getElementById('video'); const container = document.getElementById('camera-container'); const captureBtn = document.getElementById('captureBtn');
             try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); video.srcObject = stream; container.style.display = 'block'; captureBtn.style.display = 'flex'; } 
-            catch (err) { alert("Camera access denied."); }
+            catch (err) { alert("Camera denied."); }
         }
         function capturePhoto() {
             const video = document.getElementById('video'); const canvas = document.getElementById('canvas');
@@ -330,11 +315,11 @@
         // --- UPLOAD ---
         async function uploadToCloudinary(file) {
             try {
-                const compressedFile = await compressImage(file);
-                const formData = new FormData(); formData.append('file', compressedFile); formData.append('upload_preset', UPLOAD_PRESET);
+                const compressed = await compressImage(file);
+                const formData = new FormData(); formData.append('file', compressed); formData.append('upload_preset', UPLOAD_PRESET);
                 const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData }); 
                 const data = await res.json(); return data.secure_url; 
-            } catch (err) { console.error(err); return null; }
+            } catch (err) { return null; }
         }
 
         // --- SUBMIT ---
@@ -351,13 +336,13 @@
             for (let img of currentImages) {
                 if (img.type === 'url') { finalImageUrls.push(img.value); } 
                 else { 
-                    submitBtn.innerText = `Compressing & Uploading... (${uploadCount+1}/${totalNewFiles})`;
+                    submitBtn.innerText = `Uploading... (${uploadCount+1}/${totalNewFiles})`;
                     const url = await uploadToCloudinary(img.value); 
                     if (url) { finalImageUrls.push(url); uploadCount++; } 
                 }
             }
 
-            submitBtn.innerText = "Saving Database...";
+            submitBtn.innerText = "Saving...";
             const id = document.getElementById('prodId').value;
             const productData = {
                 name: document.getElementById('name').value, category: document.getElementById('category').value,
@@ -390,7 +375,7 @@
                         <td>₹${p.price}</td>
                         <td style="white-space: nowrap;">
                             <button class="action-btn edit-btn" onclick="editProduct(${p.id})" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn share-btn" onclick="openShareModal(${p.id})" title="Share Review Link"><i class="fas fa-share-alt"></i></button>
+                            <button class="action-btn share-btn" onclick="openShareModal(${p.id})" title="Review Link"><i class="fas fa-share-alt"></i></button>
                             <button class="action-btn delete-btn" onclick="deleteProduct(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
@@ -419,7 +404,7 @@
         }
 
         async function deleteProduct(id) {
-            if (confirm('Delete this product?')) { await fetch(`${API_URL}/${id}`, { method: 'DELETE' }); fetchProducts(); }
+            if (confirm('Delete product?')) { await fetch(`${API_URL}/${id}`, { method: 'DELETE' }); fetchProducts(); }
         }
 
         fetchProducts();
