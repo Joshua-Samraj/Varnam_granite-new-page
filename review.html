@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Write a Review | LuxeStone</title>
+    <title>Write a Review | Varnam Granites</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #1a1a1a; --accent: #c5a059; --white: #ffffff; --light: #f4f4f4; }
         body { font-family: 'Poppins', sans-serif; background-color: var(--light); color: var(--primary); padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        
         .container { background: var(--white); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
         
-        /* PREVIEW & FORM STYLES */
+        /* Product Preview */
         .product-preview { display: flex; gap: 15px; align-items: center; text-align: left; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .product-preview img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; }
+        
+        /* Star Rating */
         .star-rating { font-size: 2rem; color: #ddd; cursor: pointer; margin: 15px 0; transition: 0.2s; }
         .star-rating i:hover, .star-rating i.active { color: #ffa41c; }
+        
+        /* Form Inputs */
         input[type="text"], textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; box-sizing: border-box; }
         
-        /* MULTI IMAGE UPLOAD STYLES */
+        /* Image Upload Styles */
         .upload-box { margin-bottom: 15px; text-align: left; }
         .file-label { display: inline-block; padding: 10px 20px; background: #eee; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; width: 100%; text-align: center; box-sizing: border-box; border: 2px dashed #ccc; }
         .file-label:hover { background: #e0e0e0; border-color: #aaa; }
         
+        /* Multi-Image Grid */
         #previewContainer { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
         .preview-item { position: relative; width: 70px; height: 70px; }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; }
@@ -78,7 +84,7 @@
         <div id="successMessage" style="display:none;">
             <i class="fas fa-check-circle" style="font-size: 3rem; color: #27ae60; margin-bottom: 15px;"></i>
             <h3>Thank You!</h3>
-            <p>Your review has been submitted.</p>
+            <p>Your review has been submitted successfully.</p>
         </div>
     </div>
 
@@ -90,7 +96,9 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const productId = parseInt(urlParams.get('id'));
-        let selectedFiles = []; // Array to store file objects
+        
+        // Stores actual File objects
+        let selectedFiles = [];
 
         // 1. LOAD PRODUCT INFO
         fetch(API_URL).then(res => res.json()).then(products => {
@@ -117,7 +125,7 @@
             });
         });
 
-        // 3. MULTI-FILE SELECTION
+        // 3. MULTI-IMAGE SELECTION
         document.getElementById('reviewImgInput').addEventListener('change', function(e) {
             const newFiles = Array.from(e.target.files);
             if (selectedFiles.length + newFiles.length > 5) {
@@ -156,21 +164,70 @@
             reader.readAsDataURL(file);
         }
 
-        // 4. BATCH UPLOAD
+        // --- NEW: IMAGE COMPRESSION FUNCTION ---
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const MAX_WIDTH = 1000; // Good balance for review photos
+                const MAX_HEIGHT = 1000;
+                const MIME_TYPE = "image/jpeg";
+                const QUALITY = 0.7;
+
+                const blobURL = URL.createObjectURL(file);
+                const img = new Image();
+                img.src = blobURL;
+                
+                img.onerror = function() { URL.revokeObjectURL(this.src); reject("Cannot load image"); };
+
+                img.onload = function() {
+                    URL.revokeObjectURL(this.src);
+                    const canvas = document.createElement("canvas");
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = Math.round((width * MAX_HEIGHT) / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        if(!blob) { reject("Compression failed"); return; }
+                        const compressedFile = new File([blob], file.name, { type: MIME_TYPE, lastModified: Date.now() });
+                        resolve(compressedFile);
+                    }, MIME_TYPE, QUALITY);
+                };
+            });
+        }
+
+        // 4. BATCH UPLOAD (WITH COMPRESSION)
         async function uploadFilesBatch() {
             const uploadPromises = selectedFiles.map(async (file) => {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', UPLOAD_PRESET);
-
                 try {
+                    // Compress First
+                    const compressedFile = await compressImage(file);
+                    
+                    const formData = new FormData();
+                    formData.append('file', compressedFile);
+                    formData.append('upload_preset', UPLOAD_PRESET);
+
                     const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
                         method: 'POST', body: formData
                     });
                     const data = await res.json();
                     return data.secure_url;
                 } catch (err) {
-                    console.error("Upload failed", err);
+                    console.error("Upload/Compress failed", err);
                     return null;
                 }
             });
@@ -178,7 +235,7 @@
             return results.filter(url => url !== null);
         }
 
-        // 5. SUBMIT
+        // 5. SUBMIT LOGIC
         document.getElementById('reviewForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const rating = document.getElementById('ratingVal').value;
@@ -191,7 +248,7 @@
                 let imageUrls = [];
                 // A. Upload Images
                 if (selectedFiles.length > 0) {
-                    btn.innerText = `Uploading ${selectedFiles.length} Photos...`;
+                    btn.innerText = `Compressing & Uploading ${selectedFiles.length} Photos...`;
                     imageUrls = await uploadFilesBatch();
                 }
 
@@ -201,7 +258,7 @@
                     user: document.getElementById('userName').value,
                     rating: rating,
                     text: document.getElementById('userReview').value,
-                    images: imageUrls // <--- Sending Array of URLs
+                    images: imageUrls 
                 };
 
                 const res = await fetch(`${API_URL}/${productId}/reviews`, {

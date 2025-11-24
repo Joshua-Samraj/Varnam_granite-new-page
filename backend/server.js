@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -56,7 +56,34 @@ app.get('/api/products', async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+// --- AI ROUTE (Add before app.listen) ---
+app.post('/api/enhance-description', async (req, res) => {
+    try {
+        const { name, category, currentText } = req.body;
+        
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({ error: "Server missing API Key" });
+        }
 
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        // The Prompt Engineering
+        const prompt = `You are a professional copywriter for a luxury stone showroom called 'varnam Granites'. 
+        Write a sophisticated, selling product description (max 2 sentences) for a product named "${name}" which is a "${category}". 
+        Base it on these rough notes: "${currentText}". 
+        Focus on durability, elegance, and premium quality. Do not use markdown or * symbols.`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const enhancedText = response.text();
+
+        res.json({ success: true, text: enhancedText });
+    } catch (error) {
+        console.error("AI Error:", error);
+        res.status(500).json({ error: "Failed to generate text" });
+    }
+});
 // 2. ADD PRODUCT
 app.post('/api/products', async (req, res) => {
     await connectDB();
